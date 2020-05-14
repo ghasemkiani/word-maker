@@ -1,0 +1,30 @@
+{
+  "name": "@ghasemkiani/word-maker",
+  "version": "1.0.0",
+  "description": "Microsoft Word HTML maker utility",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/ghasemkiani/word-maker.git"
+  },
+  "keywords": [
+    "javascript",
+    "nodejs",
+    "html",
+    "word"
+  ],
+  "author": "Ghasem Kiani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/ghasemkiani/word-maker/issues"
+  },
+  "homepage": "https://gitlab.com/ghasemkiani/word-maker#readme",
+  "dependencies": {
+    "@ghasemkiani/commonbase": "github:ghasemkiani/commonbase",
+    "@ghasemkiani/htmlmaker": "gitlab:ghasemkiani/htmlmaker",
+    "@ghasemkiani/htmlmaker": "gitlab:ghasemkiani/wjsdom"
+  }
+}
