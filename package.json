@@ -1,6 +1,6 @@
 {
   "name": "@ghasemkiani/word-maker",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Microsoft Word HTML maker utility",
   "main": "index.js",
   "scripts": {

@@ -71,21 +71,35 @@ class Word extends Page {
 				wnode.t("*");
 			},
 		}, arg);
+		let wnodeFieldBegin;
+		let wnodeFieldCode;
+		let wnodeFieldSeparator;
+		let wnodeFieldEnd;
 		wnode.chain(wnode => {
-			wnode.ch("span[style=mso-element:field-begin;]");
+			wnode.ch("span[style=mso-element:field-begin;]", wnode => {
+				wnodeFieldBegin = wnode;
+			});
 			wnode.ch("span[dir=ltr]", wnode => {
+				wnodeFieldCode = wnode;
 				wnode.chain(arg.onField);
 			});
-			wnode.ch("span[style=mso-element:field-separator;]");
+			wnode.ch("span[style=mso-element:field-separator;]", wnode => {
+				wnodeFieldSeparator = wnode;
+			});
 			wnode.chain(arg.onResult);
-			wnode.ch("span[style=mso-element:field-end;]");
+			wnode.ch("span[style=mso-element:field-end;]", wnode => {
+				wnodeFieldEnd = wnode;
+			});
 		});
-		return {wnode};
+		return {wnode, wnodeFieldBegin, wnodeFieldCode, wnodeFieldSeparator, wnodeFieldEnd};
 	}
 	renderFieldPageRef({wnode, ...arg}) {
 		arg = juya.require("gk/type").construct({
 				bookmark: null,
 				dontLink: false,
+				onResult(wnode) {
+					wnode.t("*");
+				},
 			}).assign(arg);
 		let {bookmark, dontLink} = arg;
 		return this.renderField({
@@ -101,6 +115,7 @@ class Word extends Page {
 					wnode.t(bookmark);
 				});
 			},
+			onResult: arg.onResult,
 		});
 	}
 	renderFieldRef({wnode, ...arg}) {
