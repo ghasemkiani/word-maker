@@ -1,6 +1,6 @@
 //	@ghasemkiani/word-maker/word
 
-const {cutil} = require("@ghasemkiani/commonbase/cutil");
+const {cutil} = require("@ghasemkiani/base/cutil");
 const {Page} = require("@ghasemkiani/htmlmaker/page");
 const {WDocument} = require("@ghasemkiani/wjsdom/document");
 

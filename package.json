@@ -23,7 +23,7 @@
   },
   "homepage": "https://gitlab.com/ghasemkiani/word-maker#readme",
   "dependencies": {
-    "@ghasemkiani/commonbase": "github:ghasemkiani/commonbase",
+    "@ghasemkiani/base": "github:ghasemkiani/base",
     "@ghasemkiani/htmlmaker": "gitlab:ghasemkiani/htmlmaker",
     "@ghasemkiani/htmlmaker": "gitlab:ghasemkiani/wjsdom"
   }
