@@ -1,8 +1,8 @@
 //	@ghasemkiani/word-maker/word
 
-const {cutil} = require("@ghasemkiani/base/cutil");
-const {Page} = require("@ghasemkiani/htmlmaker/page");
-const {WDocument} = require("@ghasemkiani/wjsdom/document");
+import {cutil} from "@ghasemkiani/base";
+import {Page} from "@ghasemkiani/htmlmaker";
+import {WDocument} from "@ghasemkiani/wjsdom";
 
 class Word extends Page {
 	render({wnode}) {
@@ -281,4 +281,4 @@ cutil.extend(Word.prototype, {
 	//
 });
 
-module.exports = {Word};
+export {Word};
