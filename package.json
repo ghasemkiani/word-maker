@@ -1,6 +1,6 @@
 {
   "name": "@ghasemkiani/word-maker",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Microsoft Word HTML maker utility",
   "type": "module",
   "main": "index.js",
@@ -26,6 +26,6 @@
   "dependencies": {
     "@ghasemkiani/base": "github:ghasemkiani/base",
     "@ghasemkiani/htmlmaker": "gitlab:ghasemkiani/htmlmaker",
-    "@ghasemkiani/htmlmaker": "github:ghasemkiani/wjsdom"
+    "@ghasemkiani/wjsdom": "github:ghasemkiani/wjsdom"
   }
 }
