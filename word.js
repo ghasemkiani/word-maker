@@ -1,28 +1,25 @@
-//	@ghasemkiani/word-maker/word
-
 import {cutil} from "@ghasemkiani/base";
-import {Page} from "@ghasemkiani/htmlmaker";
+import {Obj} from "@ghasemkiani/base";
+import {Html} from "@ghasemkiani/html-maker";
 import {WDocument} from "@ghasemkiani/wjsdom";
 
-class Word extends Page {
-	render({wnode}) {
-		let res = super.render({wnode});
-		return {...res};
+class Word extends Obj {
+	static {
+		cutil.extend(this.prototype, {
+			//
+		});
 	}
-	renderHtml(arg) {
-		arg = Object.assign({
-			wnode: new WDocument().root,
-			cs: "UTF-8",
-			lang: "en-US",
-			tab: "24pt",
-			title: null,
-		}, arg);
-		let {wnode} = arg;
-		let wnodeHtml;
-		let wnodeHead;
-		let wnodeBody;
-		wnode.chain(wnode => {
-			wnodeHtml = wnode;
+	static makeDoc({
+			whtml = new WDocument().root,
+			cs = "UTF-8",
+			lang = "en-US",
+			tab = "24pt",
+			title = null,
+		}) {
+		let whead;
+		let wbody;
+		whtml.chain(wnode => {
+			whtml = wnode;
 			wnode.attr({
 				"xmlns:v": "urn:schemas-microsoft-com:vml",
 				"xmlns:o": "urn:schemas-microsoft-com:office:office",
@@ -30,9 +27,9 @@ class Word extends Page {
 				"xmlns:m": "http://schemas.microsoft.com/office/2004/12/omml",
 			});
 			wnode.ch("head", wnode => {
-				wnodeHead = wnode;
+				whead = wnode;
 				wnode.ch("meta[http-equiv=Content-Type]", wnode => {
-					wnode.attr("content", `text/html;charset=${arg.cs}`);
+					wnode.attr("content", `text/html;charset=${cs}`);
 				});
 				wnode.ch("meta[name=ProgId,content=Word.Document]");
 				wnode.c("xml", "", wnode => {
@@ -42,27 +39,27 @@ class Word extends Page {
 						wnode.c("w:Zoom$BestFit");
 					});
 				});
-				if (!cutil.isNil(arg.title)) {
+				if (!cutil.isNil(title)) {
 					wnode.ch("title", wnode => {
-						wnode.t(arg.title);
+						wnode.t(title);
 					});
 				}
 			});
 			wnode.ch("body", wnode => {
-				wnodeBody = wnode;
-				wnode.attr("lang", arg.lang);
-				wnode.css("tab-interval", arg.tab);
+				wbody = wnode;
+				wnode.attr("lang", lang);
+				wnode.css("tab-interval", tab);
 			});
 		});
-		return {wnode, wnodeHtml, wnodeHead, wnodeBody};
+		return {whtml, whead, wbody};
 	}
-	renderPageBreak({wnode}) {
+	static makePageBreak({wnode}) {
 		wnode.chain(wnode => {
 			wnode.ch("br[clear=all]{mso-special-character:line-break;page-break-before:always}");
 		});
 		return {wnode};
 	}
-	renderField({wnode, ...arg}) {
+	static makeField({wnode, ...arg}) {
 		arg = Object.assign({
 			onField(wnode) {
 				wnode.t("Quote");
@@ -93,7 +90,7 @@ class Word extends Page {
 		});
 		return {wnode, wnodeFieldBegin, wnodeFieldCode, wnodeFieldSeparator, wnodeFieldEnd};
 	}
-	renderFieldPageRef({wnode, ...arg}) {
+	static makeFieldPageRef({wnode, ...arg}) {
 		arg = juya.require("gk/type").construct({
 				bookmark: null,
 				dontLink: false,
@@ -102,7 +99,7 @@ class Word extends Page {
 				},
 			}).assign(arg);
 		let {bookmark, dontLink} = arg;
-		return this.renderField({
+		return this.makeField({
 			wnode,
 			onField(wnode) {
 				wnode.ch("span[dir=ltr]$pageref");
@@ -118,13 +115,13 @@ class Word extends Page {
 			onResult: arg.onResult,
 		});
 	}
-	renderFieldRef({wnode, ...arg}) {
+	static makeFieldRef({wnode, ...arg}) {
 		arg = juya.require("gk/type").construct({
 				bookmark: null,
 				dontLink: false,
 			}).assign(arg);
 		let {bookmark, dontLink} = arg;
-		return this.renderField({
+		return this.makeField({
 			wnode,
 			onField(wnode) {
 				wnode.ch("span[dir=ltr]$ref");
@@ -139,13 +136,13 @@ class Word extends Page {
 			},
 		});
 	}
-	renderFieldSet({wnode, ...arg}) {
+	static makeFieldSet({wnode, ...arg}) {
 		arg = juya.require("gk/type").construct({
 				bookmark: null,
 				onValue(wnode) {},
 			}).assign(arg);
 		let {bookmark, onValue} = arg;
-		return this.renderField({
+		return this.makeField({
 			wnode,
 			onField(wnode) {
 				wnode.ch("span[dir=ltr]$set");
@@ -160,7 +157,7 @@ class Word extends Page {
 			},
 		});
 	}
-	renderFieldIf({wnode, ...arg}) {
+	static makeFieldIf({wnode, ...arg}) {
 		arg = juya.require("gk/type").construct({
 				bookmark: null,
 				onCondition(wnode) {},
@@ -168,7 +165,7 @@ class Word extends Page {
 				onValue2(wnode) {},
 			}).assign(arg);
 		let {bookmark, onValue} = arg;
-		return this.renderField({
+		return this.makeField({
 			wnode,
 			onField(wnode) {
 				wnode.ch("span[dir=ltr]$if");
@@ -187,7 +184,7 @@ class Word extends Page {
 			},
 		});
 	}
-	renderPageRefList({wnode, ...arg}) {
+	static makePageRefList({wnode, ...arg}) {
 		let word = this;
 		arg = Object.assign({
 				refs: [],
@@ -195,19 +192,19 @@ class Word extends Page {
 			}, arg);
 		let {refs, delimiter} = arg;
 		let name = refs[0];
-		this.renderFieldSet({
+		this.makeFieldSet({
 			wnode,
 			bookmark: "idxpg",
 			onValue(wnode) {
 				wnode.chain(function (wnode) {
-					word.renderFieldPageRef({
+					word.makeFieldPageRef({
 						wnode,
 						bookmark: name,
 					});
 				});
 			},
 		});
-		this.renderFieldRef({
+		this.makeFieldRef({
 			wnode,
 			bookmark: "idxpg",
 		});
@@ -216,13 +213,13 @@ class Word extends Page {
 				wnode,
 				bookmark: "idxpg1",
 				onValue(wnode) {
-					word.renderFieldPageRef({
+					word.makeFieldPageRef({
 						wnode,
 						bookmark: name,
 					});
 				},
 			});
-			this.renderFieldIf({
+			this.makeFieldIf({
 				wnode,
 				onCondition(wnode) {
 					wnode.t("idxpg = idxpg1");
@@ -232,17 +229,17 @@ class Word extends Page {
 					wnode.ch("span[dir=rtl]", wnode => {
 						wnode.t(delimiter);
 					});
-					word.renderFieldSet({
+					word.makeFieldSet({
 						wnode,
 						bookmark: "idxpg",
 						onValue(arg) {
-							word.renderFieldRef({
+							word.makeFieldRef({
 								wnode,
 								bookmark: "idxpg1",
 							});
 						},
 					});
-					word.renderFieldRef({
+					word.makeFieldRef({
 						wnode,
 						bookmark: "idxpg",
 					});
@@ -251,7 +248,7 @@ class Word extends Page {
 		}
 		return word;
 	}
-	renderImg({wnode, ...arg}) {
+	static makeImg({wnode, ...arg}) {
 		arg = Object.assign({
 				url: null,
 				dpi: 300,
@@ -268,7 +265,7 @@ class Word extends Page {
 		});
 		return {wnode, wnodeImg};
 	}
-	renderTab({wnode}) {
+	static makeTab({wnode}) {
 		let wnodeSpan;
 		wnode.ch("span[style=mso-tab-count:1;]", wnode => {
 			wnodeSpan = wnode;
@@ -277,8 +274,5 @@ class Word extends Page {
 		return {wnode, wnodeSpan};
 	}
 }
-cutil.extend(Word.prototype, {
-	//
-});
 
 export {Word};

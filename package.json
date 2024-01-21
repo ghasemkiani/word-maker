@@ -25,7 +25,7 @@
   "homepage": "https://gitlab.com/ghasemkiani/word-maker#readme",
   "dependencies": {
     "@ghasemkiani/base": "github:ghasemkiani/base",
-    "@ghasemkiani/htmlmaker": "gitlab:ghasemkiani/htmlmaker",
+    "@ghasemkiani/html-maker": "gitlab:ghasemkiani/html-maker",
     "@ghasemkiani/wjsdom": "github:ghasemkiani/wjsdom"
   }
 }
