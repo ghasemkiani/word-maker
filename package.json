@@ -1,31 +1,31 @@
 {
-  "name": "@ghasemkiani/word-maker",
-  "version": "2.2.0",
-  "description": "Microsoft Word HTML maker utility",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/ghasemkiani/word-maker.git"
-  },
-  "keywords": [
-    "javascript",
-    "nodejs",
-    "html",
-    "word"
-  ],
-  "author": "Ghasem Kiani",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://gitlab.com/ghasemkiani/word-maker/issues"
-  },
-  "homepage": "https://gitlab.com/ghasemkiani/word-maker#readme",
-  "dependencies": {
-    "@ghasemkiani/base": "github:ghasemkiani/base",
-    "@ghasemkiani/html-maker": "gitlab:ghasemkiani/html-maker",
-    "@ghasemkiani/wjsdom": "github:ghasemkiani/wjsdom"
-  }
+	"name": "@ghasemkiani/word-maker",
+	"version": "2.3.0",
+	"description": "Microsoft Word HTML maker utility",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"test": "node --test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://gitlab.com/ghasemkiani/word-maker.git"
+	},
+	"keywords": [
+		"javascript",
+		"nodejs",
+		"html",
+		"word"
+	],
+	"author": "Ghasem Kiani",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://gitlab.com/ghasemkiani/word-maker/issues"
+	},
+	"homepage": "https://gitlab.com/ghasemkiani/word-maker#readme",
+	"dependencies": {
+		"@ghasemkiani/base": "github:ghasemkiani/base",
+		"@ghasemkiani/html-maker": "gitlab:ghasemkiani/html-maker",
+		"@ghasemkiani/jsdom": "gitlab:ghasemkiani/jsdom"
+	}
 }

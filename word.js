@@ -1,277 +1,290 @@
 import {cutil} from "@ghasemkiani/base";
-import {Obj} from "@ghasemkiani/base";
-import {Html} from "@ghasemkiani/html-maker";
-import {WDocument} from "@ghasemkiani/wjsdom";
+import {Maker} from "@ghasemkiani/html-maker";
+import {iwxhtml} from "@ghasemkiani/html-maker";
+import {iwjsdom} from "@ghasemkiani/jsdom";
 
-class Word extends Obj {
+const XMLNS_V = "urn:schemas-microsoft-com:vml";
+const XMLNS_O = "urn:schemas-microsoft-com:office:office";
+const XMLNS_W = "urn:schemas-microsoft-com:office:this";
+const XMLNS_M = "http://schemas.microsoft.com/office/2004/12/omml";
+
+class Word extends cutil.mixin(Maker, iwxhtml, iwjsdom) {
 	static {
+		cutil.extend(this, {
+			XMLNS_V,
+			XMLNS_O,
+			XMLNS_W,
+			XMLNS_M,
+		});
 		cutil.extend(this.prototype, {
-			//
+			XMLNS_V,
+			XMLNS_O,
+			XMLNS_W,
+			XMLNS_M,
 		});
 	}
-	static makeDoc({
-			whtml = new WDocument().root,
-			cs = "UTF-8",
-			lang = "en-US",
-			tab = "24pt",
-			title = null,
-		}) {
-		let whead;
-		let wbody;
-		whtml.chain(wnode => {
-			whtml = wnode;
-			wnode.attr({
-				"xmlns:v": "urn:schemas-microsoft-com:vml",
-				"xmlns:o": "urn:schemas-microsoft-com:office:office",
-				"xmlns:w": "urn:schemas-microsoft-com:office:this",
-				"xmlns:m": "http://schemas.microsoft.com/office/2004/12/omml",
-			});
-			wnode.ch("head", wnode => {
-				whead = wnode;
-				wnode.ch("meta[http-equiv=Content-Type]", wnode => {
-					wnode.attr("content", `text/html;charset=${cs}`);
+	makeDoc({cs = "UTF-8", lang = "en-US", tab = "24pt", ...arg}) {
+		let maker = this;
+		let {x} = maker;
+		let {xhtml} = maker;
+		let {document, nhtml, nhead, ntitle, nbody, ndescription, nkeywords, nauthor} = xhtml.makeDoc({noMetaCharset: true, ...cutil.asObject(arg)});
+		
+		x.chain(nhtml, node => {
+			if (cutil.na(x.attr(node, "xmlns:v"))) {
+				x.attr(node, "xmlns:v", XMLNS_V);
+			}
+			if (cutil.na(x.attr(node, "xmlns:o"))) {
+				x.attr(node, "xmlns:o", XMLNS_O);
+			}
+			if (cutil.na(x.attr(node, "xmlns:w"))) {
+				x.attr(node, "xmlns:w", XMLNS_W);
+			}
+			if (cutil.na(x.attr(node, "xmlns:m"))) {
+				x.attr(node, "xmlns:m", XMLNS_M);
+			}
+			x.chain(nhead, node => {
+				x.cx(node, "meta[http-equiv=Content-Type]", node => {
+					x.attr(node, "content", `text/html;charset=${cs}`);
 				});
-				wnode.ch("meta[name=ProgId,content=Word.Document]");
-				wnode.c("xml", "", wnode => {
-					wnode.css("display", "none");
-					wnode.c("w:WordDocument", wnode => {
-						wnode.c("w:View$Print");
-						wnode.c("w:Zoom$BestFit");
+				x.cx(node, "meta[name=ProgId,content=Word.Document]");
+				x.c(node, "xml", node => {
+					x.css(node, {"display": "none"});
+					x.cx(node, "w:WordDocument", XMLNS_W, node => {
+						x.cx(node, "w:View$Print", XMLNS_W);
+						x.cx(node, "w:Zoom$BestFit", XMLNS_W);
 					});
 				});
-				if (!cutil.isNil(title)) {
-					wnode.ch("title", wnode => {
-						wnode.t(title);
-					});
-				}
 			});
-			wnode.ch("body", wnode => {
-				wbody = wnode;
-				wnode.attr("lang", lang);
-				wnode.css("tab-interval", tab);
+			x.chain(nbody, node => {
+				x.attr(node, "lang", lang);
+				x.css(node, {"tab-interval": tab});
 			});
 		});
-		return {whtml, whead, wbody};
+		return {nhtml, nhead, nbody};
 	}
-	static makePageBreak({wnode}) {
-		wnode.chain(wnode => {
-			wnode.ch("br[clear=all]{mso-special-character:line-break;page-break-before:always}");
+	makePageBreak({node}) {
+		let maker = this;
+		let {x} = maker;
+		let nbr;
+		x.chain(node, node => {
+			nbr = x.cx(node, "br[clear=all]{mso-special-character:line-break;page-break-before:always;}");
 		});
-		return {wnode};
+		return {node, nbr};
 	}
-	static makeField({wnode, ...arg}) {
-		arg = Object.assign({
-			onField(wnode) {
-				wnode.t("Quote");
-			},
-			onResult(wnode) {
-				wnode.t("*");
-			},
-		}, arg);
-		let wnodeFieldBegin;
-		let wnodeFieldCode;
-		let wnodeFieldSeparator;
-		let wnodeFieldEnd;
-		wnode.chain(wnode => {
-			wnode.ch("span[style=mso-element:field-begin;]", wnode => {
-				wnodeFieldBegin = wnode;
+	makeField({
+		node,
+		onField,
+		onResult,
+	}) {
+		let maker = this;
+		let {x} = maker;
+		onField ||= node => {
+			x.t(node, "Quote");
+		};
+		onResult ||= node => {
+			x.t(node, "*");
+		};
+		let nfieldBegin;
+		let nfieldCode;
+		let nfieldSeparator;
+		let nfieldEnd;
+		x.chain(node, node => {
+			x.cx(node, "span[style=mso-element:field-begin;]", node => {
+				nfieldBegin = node;
 			});
-			wnode.ch("span[dir=ltr]", wnode => {
-				wnodeFieldCode = wnode;
-				wnode.chain(arg.onField);
+			x.cx(node, "span[dir=ltr]", node => {
+				nfieldCode = node;
+				x.chain(node, onField);
 			});
-			wnode.ch("span[style=mso-element:field-separator;]", wnode => {
-				wnodeFieldSeparator = wnode;
+			x.cx(node, "span[style=mso-element:field-separator;]", node => {
+				nfieldSeparator = node;
 			});
-			wnode.chain(arg.onResult);
-			wnode.ch("span[style=mso-element:field-end;]", wnode => {
-				wnodeFieldEnd = wnode;
+			x.chain(node, onResult);
+			x.cx(node, "span[style=mso-element:field-end;]", node => {
+				nfieldEnd = node;
 			});
 		});
-		return {wnode, wnodeFieldBegin, wnodeFieldCode, wnodeFieldSeparator, wnodeFieldEnd};
+		return {node, nfieldBegin, nfieldCode, nfieldSeparator, nfieldEnd};
 	}
-	static makeFieldPageRef({wnode, ...arg}) {
-		arg = juya.require("gk/type").construct({
-				bookmark: null,
-				dontLink: false,
-				onResult(wnode) {
-					wnode.t("*");
-				},
-			}).assign(arg);
-		let {bookmark, dontLink} = arg;
-		return this.makeField({
-			wnode,
-			onField(wnode) {
-				wnode.ch("span[dir=ltr]$pageref");
+	makeFieldPageRef({
+		node,
+		bookmark = null,
+		dontLink = false,
+		onResult,
+	}) {
+		let maker = this;
+		let {x} = maker;
+		onResult ||= node => {
+			x.t(node, "*");
+		};
+		return maker.makeField({
+			node,
+			onField(node) {
+				x.cx(node, "span[dir=ltr]$pageref");
 				if (!dontLink) {
-					wnode.t(" ");
-					wnode.ch("span[dir=ltr]$\\h");
+					x.t(node, " ");
+					x.cx(node, "span[dir=ltr]$\\h");
 				}
-				wnode.t(" ");
-				wnode.ch("span[dir=ltr]", wnode => {
-					wnode.t(bookmark);
+				x.t(node, " ");
+				x.cx(node, "span[dir=ltr]", node => {
+					x.t(node, bookmark);
 				});
 			},
-			onResult: arg.onResult,
+			onResult,
 		});
 	}
-	static makeFieldRef({wnode, ...arg}) {
-		arg = juya.require("gk/type").construct({
-				bookmark: null,
-				dontLink: false,
-			}).assign(arg);
-		let {bookmark, dontLink} = arg;
-		return this.makeField({
-			wnode,
-			onField(wnode) {
-				wnode.ch("span[dir=ltr]$ref");
+	makeFieldRef({
+		node,
+		bookmark = null,
+		dontLink = false,
+	}) {
+		let maker = this;
+		let {x} = maker;
+		return maker.makeField({
+			node,
+			onField(node) {
+				x.cx(node, "span[dir=ltr]$ref");
 				if (!dontLink) {
-					wnode.t(" ");
-					wnode.ch("span[dir=ltr]$\\h");
+					x.t(node, " ");
+					x.cx(node, "span[dir=ltr]$\\h");
 				}
-				wnode.t(" ");
-				wnode.ch("span[dir=ltr]", wnode => {
-					wnode.t(bookmark);
+				x.t(node, " ");
+				x.cx(node, "span[dir=ltr]", node => {
+					x.t(node, bookmark);
 				});
 			},
 		});
 	}
-	static makeFieldSet({wnode, ...arg}) {
-		arg = juya.require("gk/type").construct({
-				bookmark: null,
-				onValue(wnode) {},
-			}).assign(arg);
-		let {bookmark, onValue} = arg;
-		return this.makeField({
-			wnode,
-			onField(wnode) {
-				wnode.ch("span[dir=ltr]$set");
-				wnode.t(" ");
-				wnode.ch("span[dir=ltr]", wnode => {
-					wnode.t(bookmark);
+	makeFieldSet({
+		node,
+		bookmark = null,
+		onValue = node => {},
+	}) {
+		let maker = this;
+		let {x} = maker;
+		return maker.makeField({
+			node,
+			onField(node) {
+				x.cx(node, "span[dir=ltr]$set");
+				x.t(node, " ");
+				x.cx(node, "span[dir=ltr]", node => {
+					x.t(node, bookmark);
 				});
-				wnode.t(" ");
-				wnode.t('"');
-				wnode.chain(onValue);
-				wnode.t('"');
+				x.t(node, " ");
+				x.t(node, '"');
+				x.chain(node, onValue);
+				x.t(node, '"');
 			},
 		});
 	}
-	static makeFieldIf({wnode, ...arg}) {
-		arg = juya.require("gk/type").construct({
-				bookmark: null,
-				onCondition(wnode) {},
-				onValue1(wnode) {},
-				onValue2(wnode) {},
-			}).assign(arg);
-		let {bookmark, onValue} = arg;
-		return this.makeField({
-			wnode,
-			onField(wnode) {
-				wnode.ch("span[dir=ltr]$if");
-				wnode.t(" ");
-				wnode.ch("span[dir=ltr]", wnode => {
-					wnode.chain(onCondition);
+	makeFieldIf({
+		node,
+		bookmark = null,
+		onCondition = node => {},
+		onValue1 = node => {},
+		onValue2 = node => {},
+	}) {
+		let maker = this;
+		let {x} = maker;
+		return maker.makeField({
+			node,
+			onField(node) {
+				x.cx(node, "span[dir=ltr]$if");
+				x.t(node, " ");
+				x.cx(node, "span[dir=ltr]", node => {
+					x.chain(node, onCondition);
 				});
-				wnode.t(" ");
-				wnode.t('"');
-				wnode.chain(onValue1);
-				wnode.t('"');
-				wnode.t(" ");
-				wnode.t('"');
-				wnode.chain(onValue2);
-				wnode.t('"');
+				x.t(node, " ");
+				x.t(node, '"');
+				x.chain(node, onValue1);
+				x.t(node, '"');
+				x.t(node, " ");
+				x.t(node, '"');
+				x.chain(node, onValue2);
+				x.t(node, '"');
 			},
 		});
 	}
-	static makePageRefList({wnode, ...arg}) {
-		let word = this;
-		arg = Object.assign({
-				refs: [],
-				delimiter: "\u060C ",
-			}, arg);
-		let {refs, delimiter} = arg;
+	makePageRefList({
+		node,
+		refs = [],
+		delimiter = "\u060C ",
+	}) {
+		let maker = this;
+		let {x} = maker;
 		let name = refs[0];
-		this.makeFieldSet({
-			wnode,
+		maker.makeFieldSet({
+			node,
 			bookmark: "idxpg",
-			onValue(wnode) {
-				wnode.chain(function (wnode) {
-					word.makeFieldPageRef({
-						wnode,
-						bookmark: name,
-					});
+			onValue(node) {
+				x.chain(node, node => {
+					maker.makeFieldPageRef({node, bookmark: name});
 				});
 			},
 		});
-		this.makeFieldRef({
-			wnode,
-			bookmark: "idxpg",
-		});
+		maker.makeFieldRef({node, bookmark: "idxpg"});
 		for(let name of refs.slice(1)) {
-			this.makeFieldSet({
-				wnode,
+			maker.makeFieldSet({
+				node,
 				bookmark: "idxpg1",
-				onValue(wnode) {
+				onValue(node) {
 					word.makeFieldPageRef({
-						wnode,
+						node,
 						bookmark: name,
 					});
 				},
 			});
 			this.makeFieldIf({
-				wnode,
-				onCondition(wnode) {
-					wnode.t("idxpg = idxpg1");
+				node,
+				onCondition(node) {
+					x.t(node, "idxpg = idxpg1");
 				},
-				onValue1(wnode) {},
-				onValue2(wnode) {
-					wnode.ch("span[dir=rtl]", wnode => {
-						wnode.t(delimiter);
+				onValue1(node) {},
+				onValue2(node) {
+					x.cx(node, "span[dir=rtl]", node => {
+						x.t(node, delimiter);
 					});
-					word.makeFieldSet({
-						wnode,
+					maker.makeFieldSet({
+						node,
 						bookmark: "idxpg",
 						onValue(arg) {
-							word.makeFieldRef({
-								wnode,
-								bookmark: "idxpg1",
-							});
+							maker.makeFieldRef({node, bookmark: "idxpg1"});
 						},
 					});
-					word.makeFieldRef({
-						wnode,
-						bookmark: "idxpg",
-					});
+					maker.makeFieldRef({node, bookmark: "idxpg"});
 				},
 			});
 		}
-		return word;
+		return maker;
 	}
-	static makeImg({wnode, ...arg}) {
-		arg = Object.assign({
-				url: null,
-				dpi: 300,
-				targetDpi: 96,
-				width: 0,
-				height: 0,
-			}, arg);
-		let wnodeImg;
-		wnode.ch("img", wnode => {
-			wnodeImg = wnode;
-			wnode.attr("src", arg.url);
-			wnode.attr("width", arg.width * arg.targetDpi / arg.dpi);
-			wnode.attr("height", arg.height * arg.targetDpi / arg.dpi);
+	makeImg({
+		node,
+		url = null,
+		dpi = 300,
+		targetDpi = 96,
+		width = 0,
+		height = 0,
+	}) {
+		let maker = this;
+		let {x} = maker;
+		let nodeImg;
+		x.cx(node, "img", node => {
+			nodeImg = node;
+			x.attr(node, "src", url);
+			x.attr(node, "width", width * targetDpi / dpi);
+			x.attr(node, "height", height * targetDpi / dpi);
 		});
-		return {wnode, wnodeImg};
+		return {node, nodeImg};
 	}
-	static makeTab({wnode}) {
-		let wnodeSpan;
-		wnode.ch("span[style=mso-tab-count:1;]", wnode => {
-			wnodeSpan = wnode;
-			wnode.t("\t");
+	static makeTab({node}) {
+		let maker = this;
+		let {x} = maker;
+		let nspan;
+		x.cx(node, "span[style=mso-tab-count:1;]", node => {
+			nspan = node;
+			x.t(node, "\t");
 		});
-		return {wnode, wnodeSpan};
+		return {node, nspan};
 	}
 }
 
